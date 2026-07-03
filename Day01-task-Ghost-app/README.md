@@ -222,4 +222,4 @@ Verify SMTP credentials in `.env` are correct and that the SMTP provider's port 
 
 ## Author
 
-Noor — DevOps Internship, Week 1 Deliverable
+Noor — DevOps Engineer
