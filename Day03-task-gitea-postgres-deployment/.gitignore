@@ -1,0 +1,10 @@
+# Environment files with real secrets — never commit
+.env
+
+# Docker volumes if ever mounted locally as folders
+gitea_data/
+postgres_data/
+
+# OS/editor noise
+.DS_Store
+*.swp
