@@ -5,7 +5,7 @@
 # -----------------------------
 
 # Volume Name
-VOLUME_NAME="day03-task-gitea-postgres-deployment_gitea_data"
+VOLUME_NAME=$(docker volume ls --format "{{.Name}}" | grep "_gitea_data$")
 
 # Timestamp
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
