@@ -11,8 +11,7 @@ then
     exit 1
 fi
 
-VOLUME_NAME="day03-task-gitea-postgres-deployment_gitea_data"
-
+VOLUME_NAME=$(docker volume ls --format "{{.Name}}" | grep "_gitea_data$")
 BACKUP_FILE="$1"
 
 VOLUME_PATH=$(docker volume inspect "$VOLUME_NAME" --format '{{ .Mountpoint }}')
