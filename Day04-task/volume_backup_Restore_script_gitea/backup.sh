@@ -18,7 +18,7 @@ LOG_FILE="$LOG_DIR/backup.log"
 # Create directories
 mkdir -p "$BACKUP_DIR"
 mkdir -p "$LOG_DIR"
-
+mkdir -p  "$LOG_FILE"
 # Get volume mount point automatically
 VOLUME_PATH=$(docker volume inspect "$VOLUME_NAME" --format '{{ .Mountpoint }}')
 
