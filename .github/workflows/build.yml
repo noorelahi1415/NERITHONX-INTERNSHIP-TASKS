@@ -21,7 +21,7 @@ jobs:
       - name: Lint Dockerfile with hadolint
         uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: Dockerfile
+          dockerfile:  Day05-GitHub-Actions-Custom-Ghost-CI/Dockerfile
           failure-threshold: warning
 
       - name: Log in to GHCR
@@ -37,7 +37,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: Day05-GitHub-Actions-Custom-Ghost-CI
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/ghost-custom:latest
