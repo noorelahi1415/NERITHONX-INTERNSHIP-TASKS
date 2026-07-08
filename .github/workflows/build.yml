@@ -21,7 +21,7 @@ jobs:
       - name: Lint Dockerfile with hadolint
         uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile:  Day05-GitHub-Actions-Custom-Ghost-CI/Dockerfile
+          dockerfile: Day05-GitHub-Actions-Custom-Ghost-CI/Dockerfile
           failure-threshold: warning
 
       - name: Log in to GHCR
