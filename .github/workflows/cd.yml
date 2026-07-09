@@ -12,7 +12,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
-    runs-on: [self-hosted, kind-laptop]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the exact commit that was built
