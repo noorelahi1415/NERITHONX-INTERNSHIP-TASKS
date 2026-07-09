@@ -1,37 +1,73 @@
-name: Deploy Ghost to Kind
+name: Deploy Ghost to Kind Cluster
 
 on:
   workflow_run:
-    workflows: ["Build and Push Ghost Image"]   # must match the `name:` in your CI workflow exactly
-    types: [completed]
+    workflows: ["Build and Push Ghost Image"]
+    types:
+      - completed
+
+concurrency:
+  group: deploy-ghost-production
+  cancel-in-progress: false
+
+env:
+  NAMESPACE: ghost-app
+  K8S_DIR: Day06-kuberntes-ghost-app/Kind-cluster/k8s
+  IMAGE: ghcr.io/${{ github.repository_owner }}/ghost-custom
 
 jobs:
   deploy:
-    # Only deploy if CI succeeded, and only for pushes to main (skip PR builds)
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, kind-laptop]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout the exact commit that was built
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Verify cluster reachable
-        run: kubectl cluster-info --context kind-kind
+      - name: Verify cluster connectivity
+        run: kubectl cluster-info
 
-      - name: Deploy new image to Ghost Deployment
+      - name: Apply namespace first
+        run: kubectl apply -f ${{ env.K8S_DIR }}/namespace.yml
+
+      - name: Apply secrets and config
+        run: |
+          kubectl apply -f ${{ env.K8S_DIR }}/secret.yml
+          kubectl apply -f ${{ env.K8S_DIR }}/configmap.yml
+
+      - name: Apply MySQL layer
+        run: |
+          kubectl apply -f ${{ env.K8S_DIR }}/mysql-pvc.yml
+          kubectl apply -f ${{ env.K8S_DIR }}/mysql-deployment.yml
+          kubectl apply -f ${{ env.K8S_DIR }}/mysql-service.yml
+
+      - name: Wait for MySQL to be ready
+        run: |
+          kubectl rollout status deployment/ghost-mysql -n ${{ env.NAMESPACE }} --timeout=90s
+
+      - name: Apply Ghost layer
+        run: |
+          kubectl apply -f ${{ env.K8S_DIR }}/ghost-deployment.yml
+          kubectl apply -f ${{ env.K8S_DIR }}/ghost-service.yml
+          kubectl apply -f ${{ env.K8S_DIR }}/ghost-ingress.yml
+
+      - name: Deploy exact image built by CI (immutable SHA tag)
         run: |
           kubectl set image deployment/ghost-app \
-            ghost=ghcr.io/${{ github.repository_owner }}/ghost-custom:${{ github.event.workflow_run.head_sha }} \
-            -n ghost-app
+            ghost-app=${{ env.IMAGE }}:${{ github.event.workflow_run.head_sha }} \
+            -n ${{ env.NAMESPACE }}
 
-      - name: Wait for rollout to finish
-        run: kubectl rollout status deployment/ghost-app -n ghost-app --timeout=120s
+      - name: Wait for Ghost rollout to complete
+        run: kubectl rollout status deployment/ghost-app -n ${{ env.NAMESPACE }} --timeout=120s
 
-      - name: Show pod status
-        if: always()
-        run: kubectl get pods -n ghost-app -o wide
+      - name: Verify pods are healthy
+        run: kubectl get pods -n ${{ env.NAMESPACE }} -o wide
+
+      - name: Roll back automatically if deployment failed
+        if: failure()
+        run: |
+          echo "Deployment failed — rolling back to previous version"
+          kubectl rollout undo deployment/ghost-app -n ${{ env.NAMESPACE }}
