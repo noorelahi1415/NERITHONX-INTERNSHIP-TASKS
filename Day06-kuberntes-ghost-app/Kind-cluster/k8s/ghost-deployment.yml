@@ -28,7 +28,7 @@ spec:
               done
       containers:
         - name: ghost
-          image: ghcr.io/noorelahi1415/ghost-custom:04ff77656eb61c4daa33ba270177f84e09dad04d
+          image: docker pull ghcr.io/noorelahi1415/ghost-custom:48c65217c37e7fe2af0796facf67b4476e975a52
           ports:
             - containerPort: 2368
               name: http
