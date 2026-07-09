@@ -66,6 +66,22 @@ jobs:
       - name: Verify pods are healthy
         run: kubectl get pods -n ${{ env.NAMESPACE }} -o wide
 
+      - name: Stop any previous port-forward
+        run: |
+          pkill -f "kubectl port-forward svc/ghost-service" || true
+          sleep 2
+
+      - name: Start port-forward to ghost-service (cluster IP)
+        run: |
+          nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:2368 \
+            -n ${{ env.NAMESPACE }} > ${{ env.K8S_DIR }}/port-forward.log 2>&1 &
+          sleep 3
+          echo "Port-forward started, PID: $!"
+
+      - name: Verify Ghost is reachable
+        run: |
+          curl -sf http://localhost:2368 -o /dev/null && echo "Ghost is reachable on port 2368" || echo "Ghost did not respond — check port-forward.log"
+
       - name: Roll back automatically if deployment failed
         if: failure()
         run: |
