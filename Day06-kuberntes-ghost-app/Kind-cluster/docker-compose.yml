@@ -1,0 +1,33 @@
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: ghost-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ghost:
+    image: ghcr.io/noorelahi1415/ghost-custom:04ff77656eb61c4daa33ba270177f84e09dad04d
+    container_name: ghost-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "2368:2368"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
