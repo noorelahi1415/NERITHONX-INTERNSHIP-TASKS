@@ -17,7 +17,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, kind-laptop]
+    runs-on: macos-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 10
 
