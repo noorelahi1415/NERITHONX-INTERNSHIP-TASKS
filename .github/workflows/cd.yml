@@ -1,0 +1,37 @@
+name: Deploy Ghost to Kind
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Ghost Image"]   # must match the `name:` in your CI workflow exactly
+    types: [completed]
+
+jobs:
+  deploy:
+    # Only deploy if CI succeeded, and only for pushes to main (skip PR builds)
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: [self-hosted, kind-laptop]
+
+    steps:
+      - name: Checkout the exact commit that was built
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Verify cluster reachable
+        run: kubectl cluster-info --context kind-kind
+
+      - name: Deploy new image to Ghost Deployment
+        run: |
+          kubectl set image deployment/ghost-app \
+            ghost=ghcr.io/${{ github.repository_owner }}/ghost-custom:${{ github.event.workflow_run.head_sha }} \
+            -n ghost-app
+
+      - name: Wait for rollout to finish
+        run: kubectl rollout status deployment/ghost-app -n ghost-app --timeout=120s
+
+      - name: Show pod status
+        if: always()
+        run: kubectl get pods -n ghost-app -o wide
