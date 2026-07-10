@@ -57,8 +57,8 @@ jobs:
       - name: Deploy exact image built by CI (immutable SHA tag)
         run: |
           kubectl set image deployment/ghost-app \
-            ghost-app=${{ env.IMAGE }}:${{ github.event.workflow_run.head_sha }} \
-            -n ${{ env.NAMESPACE }}
+           ghost=${{ env.IMAGE }}:${{ github.event.workflow_run.head_sha }} \
+           -n ${{ env.NAMESPACE }}
 
       - name: Wait for Ghost rollout to complete
         id: rollout
