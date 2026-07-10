@@ -46,7 +46,7 @@ jobs:
           kubectl apply -f ${{ env.K8S_DIR }}/mysql-service.yml
 
       - name: Wait for MySQL to be ready
-        run: kubectl rollout status deployment/ghost-mysql -n ${{ env.NAMESPACE }} --timeout=90s
+        run: kubectl rollout status deployment/ghost-mysql -n ${{ env.NAMESPACE }} --timeout=200s
 
       - name: Apply Ghost layer
         run: |
