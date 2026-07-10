@@ -4,7 +4,7 @@ metadata:
   name: ghost-config
   namespace: ghost-app
 data:
-  GHOST_URL: "http://ghost.local"
+  url: http://localhost:32368
   MYSQL_DATABASE: "ghostdb"
   MYSQL_USER: "ghost"
   MYSQL_HOST: "ghost-mysql"
