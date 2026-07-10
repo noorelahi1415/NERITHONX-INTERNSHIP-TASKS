@@ -14,6 +14,7 @@ env:
   NAMESPACE: ghost-app
   K8S_DIR: Day06-kuberntes-ghost-app/Kind-cluster/k8s
   IMAGE: ghcr.io/${{ github.repository_owner }}/ghost-custom
+  KUBECONFIG: /home/noor-elahi/.kube/config
 
 jobs:
   deploy:
