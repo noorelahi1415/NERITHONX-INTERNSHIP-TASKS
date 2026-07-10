@@ -74,7 +74,7 @@ jobs:
 
       - name: Start port-forward to ghost-service (cluster IP)
         run: |
-          nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:2368 \
+          nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:80 \
             -n ${{ env.NAMESPACE }} > ${{ env.K8S_DIR }}/port-forward.log 2>&1 &
           disown
           sleep 3
