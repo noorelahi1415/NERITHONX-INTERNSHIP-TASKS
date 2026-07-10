@@ -62,7 +62,7 @@ jobs:
 
       - name: Wait for Ghost rollout to complete
         id: rollout
-        run: kubectl rollout status deployment/ghost-app -n ${{ env.NAMESPACE }} --timeout=120s
+        run: kubectl rollout status deployment/ghost-app -n ${{ env.NAMESPACE }} --timeout=600s
 
       - name: Verify pods are healthy
         run: kubectl get pods -n ${{ env.NAMESPACE }} -o wide
