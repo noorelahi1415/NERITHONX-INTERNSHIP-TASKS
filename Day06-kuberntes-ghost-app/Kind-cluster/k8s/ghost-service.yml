@@ -6,7 +6,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: ghost
+    app: ghost-app
   ports:
     - port: 80
       targetPort: 2368
