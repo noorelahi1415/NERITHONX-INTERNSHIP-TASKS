@@ -18,7 +18,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, kind-laptop]
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 10
 
@@ -46,8 +46,7 @@ jobs:
           kubectl apply -f ${{ env.K8S_DIR }}/mysql-service.yml
 
       - name: Wait for MySQL to be ready
-        run: |
-          kubectl rollout status deployment/ghost-mysql -n ${{ env.NAMESPACE }} --timeout=90s
+        run: kubectl rollout status deployment/ghost-mysql -n ${{ env.NAMESPACE }} --timeout=90s
 
       - name: Apply Ghost layer
         run: |
@@ -62,6 +61,7 @@ jobs:
             -n ${{ env.NAMESPACE }}
 
       - name: Wait for Ghost rollout to complete
+        id: rollout
         run: kubectl rollout status deployment/ghost-app -n ${{ env.NAMESPACE }} --timeout=120s
 
       - name: Verify pods are healthy
@@ -76,15 +76,15 @@ jobs:
         run: |
           nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:2368 \
             -n ${{ env.NAMESPACE }} > ${{ env.K8S_DIR }}/port-forward.log 2>&1 &
+          disown
           sleep 3
-          echo "Port-forward started, PID: $!"
 
       - name: Verify Ghost is reachable
         run: |
           curl -sf http://localhost:2368 -o /dev/null && echo "Ghost is reachable on port 2368" || echo "Ghost did not respond — check port-forward.log"
 
       - name: Roll back automatically if deployment failed
-        if: failure()
+        if: failure() && steps.rollout.outcome == 'failure'
         run: |
           echo "Deployment failed — rolling back to previous version"
           kubectl rollout undo deployment/ghost-app -n ${{ env.NAMESPACE }}
