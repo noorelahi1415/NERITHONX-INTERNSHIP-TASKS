@@ -18,7 +18,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, kind-laptop]
+    runs-on: self-hosted
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 10
 
