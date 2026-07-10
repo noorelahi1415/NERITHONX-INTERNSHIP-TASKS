@@ -70,6 +70,9 @@ jobs:
       - name: Verify Ghost service
         run: |
           kubectl get svc -n ${{ env.NAMESPACE }}
+      - name: Verify Ghost is Running
+        run: |
+           kubectl rollout status deployment/ghost-app -n ${{ env.NAMESPACE }}
       - name: Roll back automatically if deployment failed
         if: failure() && steps.rollout.outcome == 'failure'
         run: |
