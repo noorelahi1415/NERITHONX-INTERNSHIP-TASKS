@@ -74,9 +74,7 @@ jobs:
 
       - name: Start port-forward to ghost-service (cluster IP)
         run: |
-          setsid nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:80 \
-            -
-              -n ${{ env.NAMESPACE }} > ${{ env.K8S_DIR }}/port-forward.log 2>&1 < /dev/null &
+          setsid nohup kubectl port-forward --address 0.0.0.0 svc/ghost-service 2368:80 -n ${{ env.NAMESPACE }} > ${{ env.K8S_DIR }}/port-forward.log 2>&1 < /dev/null &
           sleep 3
 
       - name: Verify Ghost is reachable
