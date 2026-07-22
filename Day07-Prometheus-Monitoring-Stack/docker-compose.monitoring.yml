@@ -5,12 +5,14 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../Day08-Prometheus-Recording-Rules/rules:/etc/prometheus/rules:ro
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
     networks:
       - monitoring
 
