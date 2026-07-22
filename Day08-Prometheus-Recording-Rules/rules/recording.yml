@@ -1,0 +1,15 @@
+groups:
+  - name: node_recording_rules
+    interval: 30s
+    rules:
+      - record: instance:node_cpu_utilization:avg5m
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+      - record: instance:node_memory_usage:percentage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+
+  - name: container_recording_rules
+    interval: 30s
+    rules:
+      - record: container:restart_rate:5m
+        expr: sum by (name) (changes(container_start_time_unix_nano{name!=""}[1h]))
