@@ -1,18 +1,47 @@
+name: wanderlust
+
 services:
   app:
-   
     image: noorum/wanderlust-app:latest
-    container_name: wanderlust-app
+    pull_policy: never
 
     env_file:
       - .env
 
+    expose:
+      - "8080"
+
+    restart: unless-stopped
+    init: true
+
+    networks:
+      wanderlust-proxy-network:
+        aliases:
+          - app
+
+  nginx:
+    image: nginx:alpine
+
+    depends_on:
+      app:
+        condition: service_healthy
+
     ports:
-      - "8080:8080"
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/conf.d/wanderlust.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs/wanderlust.crt:/etc/nginx/certs/wanderlust.crt:ro
+      - ./nginx/certs/wanderlust.key:/etc/nginx/certs/wanderlust.key:ro
+   
 
     restart: unless-stopped
 
-    init: true
+    networks:
+      - wanderlust-proxy-network
+
 networks:
-  wanderlust-network:
+  wanderlust-proxy-network:
+    name: wanderlust-proxy-network
     driver: bridge

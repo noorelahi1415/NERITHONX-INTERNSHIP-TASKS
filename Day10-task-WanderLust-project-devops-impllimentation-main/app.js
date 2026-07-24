@@ -21,6 +21,7 @@ const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
 const app = express();
+app.set("trust proxy", 1);
 
 const dbUrl = process.env.ATLASDB_URL;
 const PORT = process.env.PORT || 8080;

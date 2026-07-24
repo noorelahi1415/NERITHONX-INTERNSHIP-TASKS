@@ -16,3 +16,5 @@ Thumbs.db
 # TLS private keys for the next Nginx stage
 nginx/certs/*.key
 nginx/certs/*.pem
+# Nginx TLS private certificates
+nginx/certs/*
