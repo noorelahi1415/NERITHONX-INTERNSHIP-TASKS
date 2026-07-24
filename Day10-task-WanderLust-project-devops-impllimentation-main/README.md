@@ -430,7 +430,7 @@ name: wanderlust
 
 services:
   app:
-    image: noorum/wanderlust-app:latest
+    image: name
     pull_policy: never
 
     env_file:
@@ -493,7 +493,7 @@ app:
   build:
     context: .
     dockerfile: Dockerfile
-  image: noorum/wanderlust-app:latest
+  image: name
 ```
 
 Then run:
